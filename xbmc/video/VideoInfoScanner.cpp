@@ -183,6 +183,11 @@ namespace VIDEO
     m_pathsToScan.clear();
     m_pathsToClean.clear();
 
+CLog::Log(
+          LOGINFO,
+          "VideoInfoScanner: Start in directory '{}', content type '{}'",
+          CURL::GetRedacted(strDirectory), TranslateContent(content));
+
     m_database.Open();
     if (strDirectory.empty())
     { // scan all paths in the database.  We do this by scanning all paths in the db, and crossing them off the list as
@@ -200,10 +205,19 @@ namespace VIDEO
       for (std::vector<std::string>::const_iterator it = rootDirs.begin(); it < rootDirs.end(); ++it)
       {
         m_pathsToScan.insert(*it);
+CLog::Log(
+          LOGINFO,
+          "VideoInfoScanner: Start dir '{}'",
+          CURL::GetRedacted(*it));
+
         std::vector<std::pair<int, std::string>> subpaths;
         m_database.GetSubPaths(*it, subpaths);
         for (std::vector<std::pair<int, std::string>>::iterator it = subpaths.begin(); it < subpaths.end(); ++it)
           m_pathsToScan.insert(it->second);
+          CLog::Log(
+          LOGINFO,
+          "VideoInfoScanner: Sub dir '{}'",
+          CURL::GetRedacted(it->second));
       }
     }
     m_database.Close();
@@ -261,7 +275,7 @@ namespace VIDEO
       return true;
 
     if (HasNoMedia(strDirectory))
-      return true;
+      return true;  
 
     bool ignoreFolder = !m_scanAll && settings.noupdate;
     if (content == CONTENT_NONE || ignoreFolder)
